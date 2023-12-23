@@ -2,16 +2,22 @@
 
 import React from 'react';
 // import { useState } from 'react';
-import BookCard from './BookCard';
+// import BookCard from './BookCard';
+import RatingCard from './RatingCard';
 import { api } from '@/trpc/react';
 import { Button } from '@/components/ui/button';
 
-export default function Books() {
+type RatingsProps = {
+  ISBN: string,
+}
+
+export default function Ratings({ ISBN }: RatingsProps) {
     // const [page, setPage] = useState(0);
 
-    const { data, fetchNextPage, isFetchingNextPage, isFetching } = api.book.getBatch.useInfiniteQuery(
+    const { data, fetchNextPage, isFetchingNextPage, isFetching } = api.rating.getBatch.useInfiniteQuery(
         {
-          limit: 4,
+          limit: 2,
+          ISBN: ISBN
         },
         {
           getNextPageParam: (lastPage) => lastPage.nextCursor,
@@ -29,7 +35,7 @@ export default function Books() {
     <>
         <ul className='grid grid-cols-2 mb-4 gap-x-3 gap-y-3'>
             {data?.pages.map(page => page.items.map(
-                (item, index) => <BookCard key={index} ISBN={item.ISBN} />
+                (item, index) => <RatingCard key={index} id={item.id} />
             ))}
         {isFetching && !isFetchingNextPage ? <p className='col-span-2'>Loading...</p> : 
         <Button className='col-span-2' onClick={() => {

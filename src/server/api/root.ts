@@ -1,6 +1,7 @@
 import { createTRPCRouter } from "@/server/api/trpc";
 import { bookRouter } from "./routers/book";
 import { userRouter } from "./routers/user";
+import { ratingRouter } from "./routers/rating";
 // import { postRouter } from "./routers/post";
 
 /**
@@ -11,6 +12,7 @@ import { userRouter } from "./routers/user";
 export const appRouter = createTRPCRouter({
   book: bookRouter,
   user: userRouter,
+  rating: ratingRouter
   // post: postRouter
 });
 

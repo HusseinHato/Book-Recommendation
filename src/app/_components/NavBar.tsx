@@ -1,10 +1,15 @@
+"use client";
+
 import Link from "next/link";
 import React from "react";
 import SignOutButton from "./SignOutButton";
-import { getServerAuthSession } from "@/server/auth";
+// import { getServerAuthSession } from "@/server/auth";
+import { useSession } from "next-auth/react";
 
-const NavBar = async () => {
-  const session = await getServerAuthSession();
+const NavBar = () => {
+  // const session = await getServerAuthSession();
+
+  const session  = useSession();
 
   console.log(session);
 
@@ -17,7 +22,7 @@ const NavBar = async () => {
             <Link href={"/"} className="text-white">
               Home
             </Link>
-            {session?.user ? (
+            {session?.data ? (
               <>
                 <Link href={"/dashboard"} className="text-white">Dashboard</Link>
                 <SignOutButton />

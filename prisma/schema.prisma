@@ -39,13 +39,12 @@ model Book {
 }
 
 model Rating {
+    id Int @id @default(autoincrement())
     User_ID String 
     ISBN String 
     Rating Int
     user User @relation(fields: [User_ID], references: [id], onDelete: Cascade)
     book Book @relation(fields: [ISBN], references: [ISBN], onDelete: Cascade)
-
-    @@id([User_ID, ISBN])
 }
 
 // Necessary for Next auth

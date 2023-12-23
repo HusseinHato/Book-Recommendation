@@ -3,6 +3,9 @@
 import React from "react";
 import { Formik, Form, Field, type FormikErrors } from "formik";
 import { signIn } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 interface MyFormValues {
   email: string;
@@ -17,6 +20,8 @@ export default function SignInForm() {
     email: "",
     password: "",
   };
+
+  const router = useRouter();
 
   return (
     <main className="">
@@ -43,16 +48,65 @@ export default function SignInForm() {
           onSubmit = { async (values, actions) => {
             // console.log({ values, actions });
             // alert(JSON.stringify(values, null, 2));
+
+            const id = toast.loading("Logging you in...",
+            {
+              isLoading: true,
+              position: "top-center",
+              autoClose: false,
+              hideProgressBar: true,
+              closeOnClick: false,
+              pauseOnHover: false,
+              draggable: true,
+              progress: undefined,
+              theme: "dark",
+            })
+
             actions.setSubmitting(false);
-            await signIn('credentials', {
+            const signInData = await signIn('credentials', {
               email: values.email,
               password: values.password,
-              redirect: true,
-              callbackUrl: 'http://localhost:3000/dashboard'
+              redirect: false,
+              callbackUrl: 'http://localhost:3000/'
             });
             
             // alert(signInData);
-            // console.log(signInData);
+            console.log(signInData);
+
+            if(signInData?.ok && signInData?.url) {
+              toast.update(id, 
+              { 
+              render: "Logging you in...", 
+              type: "success", 
+              isLoading: true,
+              position: "top-center",
+              autoClose: false,
+              hideProgressBar: true,
+              closeOnClick: false,
+              pauseOnHover: false,
+              draggable: true,
+              progress: undefined,
+              theme: "dark",
+              } 
+              );
+              router.push(signInData.url)
+            } else {
+              toast.update(id, 
+                { 
+                render: "Login Failed", 
+                type: "error", 
+                isLoading: false,
+                position: "top-center",
+                autoClose: 2000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: false,
+                draggable: true,
+                progress: undefined,
+                theme: "dark",
+                } 
+                );
+            }
 
 
             // if(signInData?.error){
@@ -99,6 +153,18 @@ export default function SignInForm() {
           )}
         </Formik>
       </div>
+      <ToastContainer 
+            // position="top-center"
+            // autoClose={2000}
+            // hideProgressBar={false}
+            // newestOnTop={false}
+            // closeOnClick
+            // rtl={false}
+            // pauseOnFocusLoss
+            // draggable
+            // pauseOnHover
+            // theme="dark"
+          />
     </main>
   );
 }

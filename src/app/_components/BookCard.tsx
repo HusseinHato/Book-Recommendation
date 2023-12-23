@@ -16,7 +16,6 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 import { api } from "@/trpc/react";
 
-import Image from "next/image";
 import Link from "next/link";
 
 type CardProps = {
