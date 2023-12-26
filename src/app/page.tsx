@@ -5,6 +5,7 @@
 import { api } from "@/trpc/server";
 import BookCard from "./_components/BookCard";
 import Books from "./_components/Books";
+import RecommendedBooks from "./_components/RecommendedBooks";
 
 // import { CreatePost } from "@/app/_components/create-post";
 // import { getServerAuthSession } from "@/server/auth";
@@ -14,7 +15,10 @@ export default function Home() {
 
   return (
     <main className="text-white">
-      <div className="container flex items-center justify-center">
+      <div className="container grid justify-center">
+        <RecommendedBooks />
+      </div>
+      <div className="container grid justify-center">
         <Books />
       </div>
     </main>

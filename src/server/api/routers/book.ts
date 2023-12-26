@@ -50,7 +50,7 @@ const userBookMatrixData = Array.from({ length: numUsers }, () =>
 interactions.forEach((interaction) => {
   const userIndex = userIndexMap.get(interaction.User_ID)!;
   const bookIndex = bookIndexMap.get(interaction.ISBN)!;
-  userBookMatrixData[userIndex][bookIndex] = interaction.Rating;
+  userBookMatrixData[userIndex]![bookIndex] = interaction.Rating;
 });
 
   console.log('Total entries in userBookMatrixData:', userBookMatrixData.length);
@@ -90,6 +90,55 @@ console.log('similarityMatrix shape:', similarityMatrix.arraySync());
 }
 
 let model: Model;
+
+interface EvaluationMetrics {
+  precision: number;
+  accuracy: number;
+  f1Score: number;
+}
+
+function evaluateModel(model: Model, testInteractions: Interaction[]): EvaluationMetrics | null {
+  if (!testInteractions || testInteractions.length === 0) {
+    return null;
+  }
+
+  const userIndexMap = model.userIndexMap;
+  const bookIndexMap = model.bookIndexMap;
+
+  let truePositives = 0;
+  let falsePositives = 0;
+  let falseNegatives = 0;
+
+  for (const testInteraction of testInteractions) {
+    const userIndex = userIndexMap.get(testInteraction.User_ID);
+    const bookIndex = bookIndexMap.get(testInteraction.ISBN);
+
+    if (userIndex !== undefined && bookIndex !== undefined) {
+      const userSimilarities = model.similarityMatrix.slice([userIndex, 0], [1, model.similarityMatrix.shape[1]]);
+      const userRatings = model.userBookMatrix.slice([userIndex, 0], [1, model.userBookMatrix.shape[1]]);
+      const predictedRating = userRatings.flatten().arraySync()[bookIndex]!;
+
+      if (predictedRating > 0 && testInteraction.Rating > 0) {
+        truePositives++;
+      } else if (predictedRating > 0 && testInteraction.Rating === 0) {
+        falsePositives++;
+      } else if (predictedRating === 0 && testInteraction.Rating > 0) {
+        falseNegatives++;
+      }
+    }
+  }
+
+  const precision = truePositives / (truePositives + falsePositives);
+  const recall = truePositives / (truePositives + falseNegatives);
+  const accuracy = truePositives / testInteractions.length; // Corrected calculation
+  const f1Score = 2 * (precision * recall) / (precision + recall);
+
+  return {
+    precision,
+    accuracy,
+    f1Score,
+  };
+}
 
 export const bookRouter = createTRPCRouter({
   someBooks: publicProcedure
@@ -155,25 +204,18 @@ export const bookRouter = createTRPCRouter({
 
     model =  buildRecommendationModel( interactions);
 
+    const f1Score  = evaluateModel(model, interactions);
+
+    console.log(f1Score);
+
     return "Model Trained";
   }),
 
   getRecommendation: protectedProcedure
-    // .input(z.object({ id: z.string() }))
     .query(({ ctx }) => {
       const userIndex = model.userIndexMap.get(ctx.session.user.id);
 
       console.log(userIndex);
-
-      // const ratings = await ctx.db.rating.findMany({
-      //   where: {
-      //     User_ID: ctx.session.user.id
-      //   }
-      // });
-
-      // if(!ratings){
-      //   return null
-      // }
 
       if (userIndex === undefined || userIndex < 0 || userIndex >= model.similarityMatrix.shape[0]) {
         return null;

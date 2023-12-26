@@ -67,7 +67,7 @@ export default function SignInForm() {
               email: values.email,
               password: values.password,
               redirect: false,
-              callbackUrl: 'http://localhost:3000/'
+              callbackUrl: 'http://localhost:3000/dashboard'
             });
             
             // alert(signInData);

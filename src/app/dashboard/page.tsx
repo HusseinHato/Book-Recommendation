@@ -7,17 +7,11 @@ import { api } from '@/trpc/server';
 export default async function Dashboard() {
     const session = await getServerAuthSession();
 
+    console.log(session);
+
     if(!session) {
         redirect("/")
       }
-
-      const train = await api.book.trainmodel.query();
-
-      console.log(train);
-
-    const recommended = await api.book.getRecommendation.query();
-
-    console.log(recommended);
 
   return (
     <div className="container">

@@ -27,6 +27,7 @@ export default function Books() {
 
   return (
     <>
+        <h3 className="text-3xl text-white">Explore</h3>
         <ul className='grid grid-cols-2 mb-4 gap-x-3 gap-y-3'>
             {data?.pages.map(page => page.items.map(
                 (item, index) => <BookCard key={index} ISBN={item.ISBN} />
